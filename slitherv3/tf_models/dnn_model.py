@@ -10,18 +10,22 @@ from game.helpers.singleton import Singleton
 
 class DeepNeuralNetModel(metaclass=Singleton):
     hidden = None
-    hidden_node_neurons = Constants.MODEL_FEATURE_COUNT ** 3
+    hidden_node_neurons = Constants.MODEL_FEATURE_COUNT ** 3        # = 125    with 4: 625
 
     def __init__(self, path):
         self.dnn_model_path = path
         self.dnn_model_file_name = self.dnn_model_path + Constants.MODEL_NAME
         network = input_data(shape=[None, Constants.MODEL_FEATURE_COUNT, 1])
-        self.hidden = network = fully_connected(network, self.hidden_node_neurons, activation='relu6')
+
+        network = fully_connected(network, self.hidden_node_neurons, activation='relu6')
+        print(self.hidden_node_neurons)
+        self.hidden = network
         network = fully_connected(network, 1, activation='linear')
+
         network = regression(network, optimizer='adam', loss='mean_square')
         self.model = tflearn.DNN(network)
-        # if os.path.isfile(self.dnn_model_file_name+".index"):
-        #     self.model.load(self.dnn_model_file_name)
+        if os.path.isfile(self.dnn_model_file_name+".index"):
+            self.model.load(self.dnn_model_file_name)
 
     def save(self):
         self.model.save(self.dnn_model_file_name)
